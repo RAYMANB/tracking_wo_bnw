@@ -367,10 +367,20 @@ class Tracker:
 		# Generate Results #
 		####################
 		
+		# moving t.score to CPU if necessary
 		for t in self.tracks:
 			if t.id not in self.results.keys():
 				self.results[t.id] = {}
-			self.results[t.id][self.im_index] = np.concatenate([t.pos[0].cpu().numpy(), np.array([t.score])])
+
+			pos_np = t.pos[0].detach().cpu().numpy()
+
+			# t.score might be a tensor or a float; handle both safely
+			if isinstance(t.score, torch.Tensor):
+				score_np = t.score.detach().cpu().numpy().reshape(1)
+			else:
+				score_np = np.array([float(t.score)], dtype=np.float32)
+
+			self.results[t.id][self.im_index] = np.concatenate([pos_np, score_np])
 
 		for t in self.inactive_tracks:
 			t.count_inactive += 1

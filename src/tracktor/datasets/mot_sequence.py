@@ -76,7 +76,8 @@ class MOT17Sequence(Dataset):
 
         sample = {}
         sample['img'] = img
-        sample['dets'] = torch.tensor([det[:4] for det in data['dets']])
+        #improving performance as converting one element at a time can be slow
+        sample['dets'] = torch.from_numpy(np.array([det[:4] for det in data['dets']]))
         sample['img_path'] = data['im_path']
         sample['gt'] = data['gt']
         sample['vis'] = data['vis']
